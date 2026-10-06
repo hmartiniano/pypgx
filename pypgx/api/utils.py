@@ -1121,6 +1121,14 @@ def predict_alleles(consolidated_variants):
     defining_variants = core.list_variants(gene, assembly=assembly)
     variant_synonyms = core.get_variant_synonyms(gene, assembly=assembly)
 
+    # Pre-filter the dataframe to rows with defining variants.
+    defining_positions = set()
+    for variant in list(defining_variants) + list(variant_synonyms.keys()):
+        defining_positions.add(int(variant.split('-')[1]))
+    filtered_df = consolidated_variants.data.df[
+        consolidated_variants.data.df['POS'].isin(defining_positions)
+    ]
+
     reformatted_variants = {}
 
     for x in consolidated_variants.data.to_variants():
@@ -1180,7 +1188,7 @@ def predict_alleles(consolidated_variants):
                 all_alleles += [x for x in candidates if x not in all_alleles]
                 all_alleles = core.sort_alleles(all_alleles, by='priority', gene=gene, assembly=assembly)
             else:
-                observed = consolidated_variants.data.df.apply(one_row, args=(sample, i), axis=1)
+                observed = filtered_df.apply(one_row, args=(sample, i), axis=1)
                 observed = [x for x in observed if x]
                 alt_phase += [x for x in observed if x not in alt_phase]
                 candidates = one_haplotype(observed)
