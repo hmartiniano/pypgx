@@ -6,6 +6,7 @@ import pkgutil
 import pathlib
 from io import BytesIO
 import warnings
+import functools
 
 from .. import sdk
 
@@ -1093,6 +1094,7 @@ def list_variants(gene, alleles=None, mode='all', assembly='GRCh37'):
 
     return common.sort_variants(set(results))
 
+@functools.lru_cache(maxsize=None)
 def load_allele_table():
     """
     Load the allele table.
@@ -1222,6 +1224,7 @@ def load_equation_table():
     b = BytesIO(pkgutil.get_data(__name__, 'data/equation-table.csv'))
     return pd.read_csv(b)
 
+@functools.lru_cache(maxsize=None)
 def load_gene_table():
     """
     Load the gene table.
@@ -1297,6 +1300,7 @@ def load_recommendation_table():
     b = BytesIO(pkgutil.get_data(__name__, 'data/recommendation-table.csv'))
     return pd.read_csv(b, na_filter=False)
 
+@functools.lru_cache(maxsize=None)
 def load_variant_table():
     """
     Load the variant table.
